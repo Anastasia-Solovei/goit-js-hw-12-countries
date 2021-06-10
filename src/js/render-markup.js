@@ -1,17 +1,17 @@
 import API from './fetchCountries.js';
+import debounce from 'lodash.debounce';
 import countryCardTpl from '../templates/country-card.hbs';
 import countriesListTpl from '../templates/countries-list.hbs';
 import getRefs from './get-refs.js';
 
-import * as PNotify from '../../node_modules/@pnotify/core/dist/PNotify.js';
-import * as PNotifyMobile from '../../node_modules/@pnotify/mobile/dist/PNotifyMobile.js';
+import * as PNotify from '@pnotify/core/dist/PNotify.js';
+import * as PNotifyMobile from '@pnotify/mobile/dist/PNotifyMobile.js';
 import '@pnotify/core/dist/BrightTheme.css';
 
 PNotify.defaultModules.set(PNotifyMobile, {});
 PNotify.defaults.delay = 1800;
 
 const refs = getRefs();
-const debounce = require('lodash.debounce');
 
 refs.input.addEventListener('input', debounce(onInputChange, 500));
 
@@ -19,14 +19,14 @@ function onInputChange(e) {
   const query = e.target;
   const searchQuery = query.value;
 
-  API.fetchCountries(searchQuery).then(renderCountryCard).catch(onFetchError).finally(onInputClear);
+  clearMarkUp();
+  if (!searchQuery) {
+    return;
+  }
+  API.fetchCountries(searchQuery).then(renderCountryCard).catch(onFetchError);
 }
 
 function renderCountryCard(countries) {
-  if (refs.input.value !== '') {
-    clearMarkUp();
-  }
-
   if (countries.status === 404) {
     onFetchError(error);
   }
@@ -55,10 +55,6 @@ function onFetchError(error) {
   PNotify.error({
     text: 'Such country not found!',
   });
-}
-
-function onInputClear() {
-  refs.input.value = '';
 }
 
 function clearMarkUp() {
