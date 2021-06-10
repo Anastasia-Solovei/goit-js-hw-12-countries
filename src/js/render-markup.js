@@ -1,4 +1,3 @@
-import _debounce from 'debounce';
 import API from './fetchCountries.js';
 import countryCardTpl from '../templates/country-card.hbs';
 import countriesListTpl from '../templates/countries-list.hbs';
@@ -9,6 +8,7 @@ import * as PNotifyMobile from '../../node_modules/@pnotify/mobile/dist/PNotifyM
 import '@pnotify/core/dist/BrightTheme.css';
 
 PNotify.defaultModules.set(PNotifyMobile, {});
+PNotify.defaults.delay = 1800;
 
 const refs = getRefs();
 const debounce = require('lodash.debounce');
@@ -23,6 +23,10 @@ function onInputChange(e) {
 }
 
 function renderCountryCard(countries) {
+  if (refs.input.value !== '') {
+    clearMarkUp();
+  }
+
   if (countries.status === 404) {
     onFetchError(error);
   }
@@ -51,10 +55,12 @@ function onFetchError(error) {
   PNotify.error({
     text: 'Such country not found!',
   });
-
-  // alert('Country not found!');
 }
 
 function onInputClear() {
   refs.input.value = '';
+}
+
+function clearMarkUp() {
+  refs.cardContainer.innerHTML = '';
 }
